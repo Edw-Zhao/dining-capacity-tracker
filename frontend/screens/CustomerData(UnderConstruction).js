@@ -10,19 +10,24 @@ import {
   ScrollView,
   TouchableOpacity,
   FlatList,
-  Card,
+  ImageBackground,
+  Button,
+  TextInput,
+  Modal,
 } from "react-native";
 import baseURL from "../assets/common/baseURL";
 import axios from "axios";
-import CollapsibleView from "@eliav2/react-native-collapsible-view";
 import MapView, { Marker } from "react-native-maps";
 import iconBank from "../components/iconbank";
-import { MaterialCommunityIcons, FontAwesome5, Ionicons } from "@expo/vector-icons";
-import { TextInput } from "react-native-paper";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import DropDownPicker from "react-native-dropdown-picker";
+import * as Progress from "react-native-progress";
+import { Icon } from "react-native-elements";
 
 export default function CustomerData({ navigation }) {
+  TextInput.defaultProps = TextInput.defaultProps || {};
+  TextInput.defaultProps.allowFontScaling = false;
+
   const [res, setRes] = useState({});
   const [dataLoaded, setDataLoaded] = useState(false);
   const [location, setLocation] = useState(null);
@@ -33,6 +38,8 @@ export default function CustomerData({ navigation }) {
   const [filteredList, setFilteredList] = useState([]);
   const [filterCounter, setFilterCounter] = useState(0);
   const [filterIcon, setFilterIcon] = useState(1000);
+  const [showCityModal, setShowCityModal] = useState(false);
+  const [showTagModal, setShowTagModal] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,7 +61,6 @@ export default function CustomerData({ navigation }) {
     };
 
     if (dataLoaded) {
-      console.log([rawFilterInput, townFilterInput, filterIcon, filterCounter]);
       let localfilteredList = [];
       let inputregex = rawFilterInput.split(" ");
 
@@ -130,17 +136,19 @@ export default function CustomerData({ navigation }) {
 
   const showIcons = (entry) => {
     return entry.icon_arr.map((key) => {
-      if (iconBank[key].family === "FontAwesome5") {
-        return <FontAwesome5 style={styles.icon} key={key} name={iconBank[key].name} size={22} />;
-      }
-      if (iconBank[key].family === "Ionicons") {
-        return <Ionicons style={styles.icon} key={key} name={iconBank[key].name} size={22} />;
-      }
-      if (iconBank[key].family === "MaterialCommunityIcons") {
-        return <MaterialCommunityIcons style={styles.icon} key={key} name={iconBank[key].name} size={22} />;
-      }
+      return (
+        <Icon
+          key={key}
+          name={iconBank[key].name}
+          style={styles.icon}
+          type={iconBank[key].family}
+          size={RFValue(12)}
+          color="black"
+        />
+      );
     });
   };
+
   const capaFrac = (entry) => {
     return (
       <Text style={styles.rowText}>
@@ -149,73 +157,46 @@ export default function CustomerData({ navigation }) {
     );
   };
 
-  const entryRow = (entry, i) => {
-    return (
-      <CollapsibleView
-        key={i}
-        style={styles.rowEntry}
-        title={
-          <View style={styles.rowTitle}>
-            <Image source={{ uri: entry.img_src }} style={styles.tinyLogo} />
-            <View style={{ alignSelf: "center" }}>
-              <Text style={styles.rowText}>{String(entry.facility)}</Text>
-              <View style={[styles.rowFlex, { justifyContent: "space-around" }]}>{showIcons(entry)}</View>
-            </View>
-            <View>{capaFrac(entry)}</View>
-          </View>
-        }
-      >
-        <View style={styles.rowEntryExtra}>
-          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-            <View>
-              <Text style={{ marginBottom: 20, marginTop: 20, fontSize: RFValue(17) }}> {entry.msg} </Text>
-              <Text style={styles.desc}>Type: {entry.permit_type}</Text>
-              <Text style={styles.desc}>City: {entry.facility_town}</Text>
-              <Text style={styles.desc}>Address: {entry.facility_address}</Text>
-              <Text style={styles.desc}>Max Capacity: {entry.max_capacity}</Text>
-              <Text style={styles.desc}>Current Capacity: {entry.current_capacity}</Text>
-            </View>
-            <TouchableHighlight style={{ alignSelf: "flex-end" }}>
-              <MapView
-                initialRegion={{
-                  latitude: entry.location_latitude,
-                  longitude: entry.location_longitude,
-                  latitudeDelta: 0.01,
-                  longitudeDelta: 0.01,
-                }}
-                style={styles.map}
-              >
-                <Marker
-                  title={entry.facility}
-                  coordinate={{ latitude: entry.location_latitude, longitude: entry.location_longitude }}
-                />
-              </MapView>
-            </TouchableHighlight>
-          </View>
-        </View>
-      </CollapsibleView>
-    );
+  const capacityPercent = (entry) => {
+    return entry.current_capacity / entry.max_capacity;
   };
 
   // > Functions for entries **************************************
 
-  const displayAllData = () => {
-    return res.map((entry, i) => {
-      return entryRow(entry, i);
-    });
-  };
-
-  const displayAllData = () => {
+  const displayData = (dataArr) => {
     return (
       <FlatList
-        data={res}
+        contentContainerStyle={{ marginTop: "2%", alignItems: "center" }}
+        data={dataArr}
         horizontal={false}
         numColumns={2}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => {
           return (
-            <TouchableOpacity>
-              <Text>{String(item.facility)}</Text>
+            <TouchableOpacity
+              style={styles.itemEntry}
+              onPress={() => navigation.navigate("Customer Restaurant Screen", { restaurant: item })}
+            >
+              <Progress.Bar
+                progress={capacityPercent(item)}
+                backgroundColor="white"
+                borderWidth={1.5}
+                borderColor="lightgrey"
+                color={
+                  capacityPercent(item) >= 0 && capacityPercent(item) < 0.6
+                    ? "rgb(124,252,0)"
+                    : capacityPercent(item) >= 0.6 && capacityPercent(item) < 0.8
+                    ? "yellow"
+                    : "red"
+                }
+                borderRadius={0}
+                style={{ width: "100%" }}
+              ></Progress.Bar>
+              <Text numberOfLines={1} style={{ color: "black" }}>
+                {String(item.facility)}
+              </Text>
+              <Image style={styles.restaurantPicture} source={{ uri: item.img_src }} />
+              <View style={[styles.rowFlex, { marginTop: 5 }]}>{showIcons(item)}</View>
             </TouchableOpacity>
           );
         }}
@@ -223,83 +204,164 @@ export default function CustomerData({ navigation }) {
     );
   };
 
-  const displayFilteredData = () => {
-    return filteredList.map((entry, i) => {
-      return entryRow(entry, i);
+  // < Filter *********************************************
+
+  const filterIconRows = () => {
+    return iconBank.map((icon, i) => {
+      let ci = i;
+      return (
+        <TouchableOpacity
+          style={[styles.filterRow, { flexDirection: "row" }]}
+          key={ci}
+          onPress={(i) => {
+            setFilterIcon(ci);
+            setShowTagModal(!setShowTagModal);
+          }}
+        >
+          <Icon name={iconBank[ci].name} type={iconBank[ci].family} size={30} color="black" />
+          <Text style={{ fontSize: RFValue(22) }}> {icon.name}</Text>
+        </TouchableOpacity>
+      );
     });
   };
 
-  // < Filter *********************************************
+  let cityArrList = ["Halifax", "Bedford", "Dartmouth", "Sackville", "Cole Harbour"];
 
-  let localArrList = [];
-  iconBank.map((icon, i) => {
-    localArrList.push({
-      label: icon.name,
-      value: icon.name,
-      key: i,
-      icon: () => {
-        if (icon.family === "MaterialCommunityIcons") {
-          return <MaterialCommunityIcons name={icon.name} size={28} />;
-        }
-        if (icon.family === "Ionicons") {
-          return <Ionicons name={icon.name} size={30} />;
-        }
-        if (icon.family === "FontAwesome5") {
-          return <FontAwesome5 name={icon.name} size={30} />;
-        }
-      },
+  let filterCityRows = () => {
+    return cityArrList.map((city, i) => {
+      return (
+        <TouchableOpacity
+          style={styles.filterRow}
+          key={i}
+          onPress={() => {
+            setTownFilterInput(city);
+            setShowCityModal(!setShowCityModal);
+          }}
+        >
+          <Text style={{ fontSize: RFValue(22) }}>{city}</Text>
+        </TouchableOpacity>
+      );
     });
-  });
-  localArrList.push({ label: "None", value: "None" });
+  };
 
   return (
     <View style={styles.container}>
-      <View style={{ width: "100%" }}>
-        <View style={{ flexDirection: "row", justifyContent: "space-around", marginBottom: 15 }}>
-          <TextInput
-            style={styles.input}
-            mode="outlined"
-            label="Filter by name"
-            onChangeText={(text) => {
-              setRawFilterInput(text);
-            }}
-          />
-          <View style={{ width: "45%", alignItems: "center" }}>
-            <DropDownPicker
-              placeholder="Filter by city"
-              style={{ width: "100%" }}
-              containerStyle={{ height: 40 }}
-              items={[
-                { label: "Bedford", value: "Bedford" },
-                { label: "Halifax", value: "Halifax" },
-              ]}
-              itemStyle={{
-                justifyContent: "flex-start",
-              }}
-              dropDownStyle={{ backgroundColor: "#fafafa" }}
-              onChangeItem={(option) => setTownFilterInput(option.label)}
-            />
-            <DropDownPicker
-              placeholder="Filter by tag"
-              label="yeet"
-              style={{ width: "100%" }}
-              containerStyle={{ height: 40 }}
-              items={localArrList}
-              itemStyle={{
-                justifyContent: "flex-start",
-              }}
-              dropDownStyle={{ backgroundColor: "#fafafa" }}
-              onChangeItem={(option) => setFilterIcon(option.key)}
-            />
+      <View style={styles.filterHeader}>
+        <TextInput
+          style={styles.nameInput}
+          mode="outlined"
+          placeholder="Filter by name"
+          onChangeText={(text) => {
+            setRawFilterInput(text);
+          }}
+        />
+        <TouchableOpacity
+          onPress={() => setShowCityModal(true)}
+          style={{ width: "30%", alignSelf: "center", justifyContent: "center" }}
+        >
+          <View style={styles.filterModalBtn}>
+            {townFilterInput !== "" ? (
+              <Text>{townFilterInput}</Text>
+            ) : (
+              <Text style={{ color: "grey" }}>Filter by city</Text>
+            )}
           </View>
+        </TouchableOpacity>
+
+        <Modal animationType="fade" visible={showCityModal} transparent={true}>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <TouchableOpacity
+                style={{ alignSelf: "flex-end", padding: 5 }}
+                onPress={() => setShowCityModal(!setShowCityModal)}
+              >
+                <Icon name="exit-outline" type="ionicon" size={24} color="black" />
+              </TouchableOpacity>
+              <ScrollView style={{ width: "100%" }} contentContainerStyle={{ width: "100%", alignItems: "center" }}>
+                {filterCityRows()}
+              </ScrollView>
+              <View style={{ height: 25 }}></View>
+            </View>
+          </View>
+        </Modal>
+
+        <TouchableOpacity
+          onPress={() => setShowTagModal(true)}
+          style={{ width: "30%", alignSelf: "center", justifyContent: "center" }}
+        >
+          <View style={styles.filterModalBtn}>
+            {filterIcon < 1000 ? (
+              <Icon
+                name={iconBank[filterIcon].name}
+                style={styles.icon}
+                type={iconBank[filterIcon].family}
+                size={RFValue(24)}
+                color="black"
+              />
+            ) : (
+              <Text style={styles.filterModalBtn}>Filter by tag</Text>
+            )}
+          </View>
+        </TouchableOpacity>
+
+        <Modal animationType="fade" visible={showTagModal} transparent={true}>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <TouchableOpacity
+                style={{ alignSelf: "flex-end", padding: 5 }}
+                onPress={() => setShowTagModal(!setShowTagModal)}
+              >
+                <Icon name="exit-outline" type="ionicon" size={24} color="black" />
+              </TouchableOpacity>
+              <ScrollView style={{ width: "100%" }} contentContainerStyle={{ width: "100%", alignItems: "center" }}>
+                {filterIconRows()}
+              </ScrollView>
+              <View style={{ height: 25 }}></View>
+            </View>
+          </View>
+        </Modal>
+
+        {/*<View style={{ width: "30%" }}>
+          <DropDownPicker
+            placeholder="Filter by city"
+            style={{ width: "100%" }}
+            containerStyle={{ height: 30 }}
+            items={[
+              { label: "Bedford", value: "Bedford" },
+              { label: "Halifax", value: "Halifax" },
+            ]}
+            itemStyle={{
+              justifyContent: "flex-start",
+            }}
+            dropDownStyle={{ backgroundColor: "#fafafa" }}
+            onChangeItem={(option) => setTownFilterInput(option.label)}
+          />
         </View>
-        {!dataLoaded && <Text>Loading...</Text>}
-        {dataLoaded && filterCounter === 0 && displayAllData()}
-        {filterCounter > 0 && (
-          <ScrollView contentContainerStyle={styles.containerScroll}>{displayFilteredData()}</ScrollView>
-        )}
+        <View style={{ width: "30%" }}>
+          <DropDownPicker
+            placeholder="Filter by tag"
+            style={{ width: "100%" }}
+            containerStyle={{ height: 30 }}
+            items={localArrList}
+            itemStyle={{
+              justifyContent: "flex-start",
+            }}
+            dropDownStyle={{ backgroundColor: "#fafafa" }}
+            onChangeItem={(option) => setFilterIcon(option.key)}
+          />
+        </View>*/}
       </View>
-      <StatusBar />
+      <ImageBackground
+        style={{ height: "100%", width: "100%" }}
+        source={require("../assets/background/hand-drawn-food-kitchen-utensils-seamless-pattern-doodle-style_75047-119.jpg")}
+        blurRadius={0}
+      >
+        {!dataLoaded && <Text>Loading...</Text>}
+        {dataLoaded && filterCounter === 0 && displayData(res)}
+        {filterCounter > 0 && displayData(filteredList)}
+      </ImageBackground>
+
+      <StatusBar style="light" />
     </View>
   );
 }
@@ -307,15 +369,54 @@ export default function CustomerData({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
-    paddingTop: 20,
     width: "100%",
     height: "100%",
     alignItems: "center",
   },
-  containerScroll: {
-    backgroundColor: "#fff",
+  filterHeader: {
     width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    paddingVertical: "2%",
+    backgroundColor: "lightgrey",
+  },
+  filterModalBtn: {
+    height: 30,
+    shadowRadius: 2,
+    borderRadius: 4,
+    backgroundColor: "white",
+    borderColor: "lightgrey",
+    color: "grey",
+    textAlign: "center",
+    textAlignVertical: "center",
     alignItems: "center",
+    justifyContent: "center",
+  },
+  centeredView: {
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalView: {
+    opacity: 0.95,
+    height: "65%",
+    width: "83.5%",
+    backgroundColor: "grey",
+    borderRadius: 20,
+    padding: 10,
+    alignItems: "center",
+    elevation: 5,
+  },
+  filterRow: {
+    borderWidth: 1,
+    borderRadius: 6,
+    borderColor: "lightgrey",
+    width: "80%",
+    marginVertical: "0.5%",
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    height: 40,
   },
   button: {
     color: "black",
@@ -323,43 +424,40 @@ const styles = StyleSheet.create({
     padding: 5,
     fontSize: RFValue(15),
   },
-  input: {
-    height: 50,
-    width: "45%",
-    fontSize: RFValue(15),
-    marginBottom: 10,
-    alignSelf: "center",
+  nameInput: {
+    height: 30,
+    width: "30%",
+    fontSize: RFValue(14),
+    shadowRadius: 2,
+    borderRadius: 4,
+    backgroundColor: "white",
+    borderColor: "lightgrey",
+    color: "black",
+    paddingLeft: 15,
+  },
+  itemEntry: {
+    borderRadius: 5,
+    width: 150,
+    marginVertical: 10,
+    marginHorizontal: 22,
+    padding: 5,
+    alignItems: "center",
+    backgroundColor: "white",
   },
   desc: {
     fontSize: RFValue(11),
   },
-  rowEntry: {
-    width: "90%",
-    alignItems: "flex-start",
-  },
-  rowTitle: {
+  restaurantPicture: {
     width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    aspectRatio: 1.3,
   },
   icon: {
     marginHorizontal: 2,
-  },
-  rowText: {
-    fontSize: RFValue(12),
-    textAlign: "center",
   },
   rowFlex: {
     alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",
-  },
-  rowEntryExtra: {
-    marginTop: 5,
-    height: 200,
-    borderWidth: 1,
-    color: "purple",
   },
   tinyLogo: {
     width: 50,
@@ -367,7 +465,6 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     marginRight: 10,
   },
-
   map: {
     width: 200,
     height: 200,

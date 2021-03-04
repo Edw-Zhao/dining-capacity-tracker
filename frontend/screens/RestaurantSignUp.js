@@ -5,7 +5,7 @@ import baseURL from "../assets/common/baseURL";
 import axios from "axios";
 import { TextInput } from "react-native-paper";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
-import { MaterialCommunityIcons, FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { Icon } from "react-native-elements";
 
 export default function RestaurantInterface({ navigation }) {
   React.useLayoutEffect(() => {
@@ -15,7 +15,7 @@ export default function RestaurantInterface({ navigation }) {
           style={{ marginLeft: 7.5, padding: 5 }}
           onPress={() => navigation.navigate("Home Screen", {})}
         >
-          <FontAwesome5 name="home" size={RFValue(24)} color="white" />
+          <Icon name="home" type="font-awesome-5" size={RFValue(24)} color="white" />
         </TouchableOpacity>
       ),
     });
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   input: {
     height: 40,
     width: "80%",
-    fontSize: RFValue(14),
+    fontSize: RFValue(12),
     marginBottom: "10%",
   },
   inputForm: {

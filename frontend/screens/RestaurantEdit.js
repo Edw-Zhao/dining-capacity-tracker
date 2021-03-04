@@ -20,15 +20,15 @@ import * as Location from "expo-location";
 import CollapsibleView from "@eliav2/react-native-collapsible-view";
 import MapView, { Marker } from "react-native-maps";
 import iconBank from "../components/iconbank";
-import { MaterialCommunityIcons, FontAwesome5, Ionicons, AntDesign } from "@expo/vector-icons";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
+import { Icon } from "react-native-elements";
 
 export default function RestaurantEdit({ route, navigation }) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity style={{ marginLeft: 10, padding: 5 }} onPress={() => navigation.navigate("Home Screen", {})}>
-          <FontAwesome5 name="home" size={RFValue(24)} color="white" />
+          <Icon name="home" type="font-awesome-5" size={RFValue(24)} color="white" />
         </TouchableOpacity>
       ),
     });
@@ -123,15 +123,14 @@ export default function RestaurantEdit({ route, navigation }) {
 
   const iconPreview = () => {
     return activeIconIndex.map((key) => {
-      if (iconBank[key].family === "FontAwesome5") {
-        return <FontAwesome5 style={styles.icon} key={key} name={iconBank[key].name} size={22} />;
-      }
-      if (iconBank[key].family === "Ionicons") {
-        return <Ionicons style={styles.icon} key={key} name={iconBank[key].name} size={22} />;
-      }
-      if (iconBank[key].family === "MaterialCommunityIcons") {
-        return <MaterialCommunityIcons style={styles.icon} key={key} name={iconBank[key].name} size={22} />;
-      }
+      <Icon
+        key={key}
+        name={iconBank[key].name}
+        style={styles.icon}
+        type={iconBank[key].family}
+        size={RFValue(22)}
+        color="black"
+      />;
     });
   };
 
@@ -216,37 +215,16 @@ export default function RestaurantEdit({ route, navigation }) {
     return iconBank.map((icon) => {
       i = i + 1;
       let ci = i;
-      if (icon.family === "FontAwesome5")
-        return (
-          <TouchableOpacity
-            value={i}
-            key={i}
-            style={activeIconIndex.includes(ci) ? styles.selectedIcon : styles.selectIcon}
-            onPress={() => handlePress(ci)}
-          >
-            <FontAwesome5 name={icon.name} size={40} />
-          </TouchableOpacity>
-        );
-      if (icon.family === "Ionicons")
-        return (
-          <TouchableOpacity
-            key={i}
-            style={activeIconIndex.includes(ci) ? styles.selectedIcon : styles.selectIcon}
-            onPress={() => handlePress(ci)}
-          >
-            <Ionicons name={icon.name} size={40} />
-          </TouchableOpacity>
-        );
-      if (icon.family === "MaterialCommunityIcons")
-        return (
-          <TouchableOpacity
-            key={i}
-            style={activeIconIndex.includes(ci) ? styles.selectedIcon : styles.selectIcon}
-            onPress={() => handlePress(ci)}
-          >
-            <MaterialCommunityIcons name={icon.name} size={40} />
-          </TouchableOpacity>
-        );
+      return (
+        <TouchableOpacity
+          value={i}
+          key={i}
+          style={activeIconIndex.includes(ci) ? styles.selectedIcon : styles.selectIcon}
+          onPress={() => handlePress(ci)}
+        >
+          <Icon name={iconBank[i].name} type={iconBank[i].family} size={RFValue(36)} color="black" />
+        </TouchableOpacity>
+      );
     });
   };
 
@@ -277,10 +255,10 @@ export default function RestaurantEdit({ route, navigation }) {
                 onChangeText={(number) => onChangeCapacity(number)}
               />
               <TouchableHighlight onPressIn={increaseCounter} underlayColor="#DDDDDD">
-                <AntDesign name="pluscircleo" size={45} color="green" />
+                <Icon type="antdesign" name="pluscircleo" size={45} color="green" />
               </TouchableHighlight>
               <TouchableHighlight onPressIn={decreaseCounter} underlayColor="#DDDDDD">
-                <AntDesign name="minuscircleo" size={45} color="red" />
+                <Icon type="antdesign" name="minuscircleo" size={45} color="red" />
               </TouchableHighlight>
             </View>
             <TextInput

@@ -2,7 +2,8 @@ import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, Button, SafeAreaView, TouchableOpacity, ImageBackground } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import CustomerData from "./screens/CustomerData";
+import CustomerData from "./screens/CustomerData(UnderConstruction)";
+import CustomerRestaurantScreen from "./screens/CustomerRestaurantScreen(UnderConstruction)";
 import "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator, HeaderBackButton } from "@react-navigation/stack";
@@ -84,7 +85,16 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen name="Home Screen" component={HomeScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="Customer Data" component={CustomerData} />
+          <Stack.Screen
+            name="Customer Data"
+            component={CustomerData}
+            options={{
+              title: "Restaurants",
+              headerStyle: { backgroundColor: "black" },
+              headerTintColor: "white",
+            }}
+          />
+          <Stack.Screen name="Customer Restaurant Screen" component={CustomerRestaurantScreen} />
           <Stack.Screen
             name="Restaurant Edit"
             component={RestaurantEdit}

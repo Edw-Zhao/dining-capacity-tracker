@@ -6,14 +6,14 @@ import axios from "axios";
 import { TextInput } from "react-native-paper";
 import { useFocusEffect } from "@react-navigation/native";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
-import { MaterialCommunityIcons, FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { Icon } from "react-native-elements";
 
 export default function RestaurantLogin({ navigation }) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity style={{ marginLeft: 15, padding: 5 }} onPress={() => navigation.navigate("Home Screen", {})}>
-          <FontAwesome5 name="home" size={RFValue(24)} color="white" />
+          <Icon name="home" type="font-awesome-5" size={RFValue(24)} color="white" />
         </TouchableOpacity>
       ),
     });

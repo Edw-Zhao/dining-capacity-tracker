@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, Button, Modal, TouchableOpacity, ImageBackground, Alert } from "react-native";
+import { StyleSheet, Text, View, Modal, TouchableOpacity, ImageBackground, Alert } from "react-native";
 import baseURL from "../assets/common/baseURL";
 import axios from "axios";
 import RestaurantEdit from "./RestaurantEdit";
@@ -8,7 +8,7 @@ import { TextInput } from "react-native-paper";
 import { useFocusEffect } from "@react-navigation/native";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import { MaterialCommunityIcons, FontAwesome5, Ionicons } from "@expo/vector-icons";
-import { set } from "react-native-reanimated";
+import { Icon, Button } from "react-native-elements";
 
 export default function RestaurantInterface({ navigation }) {
   const [token, setToken] = useState("");
@@ -16,10 +16,6 @@ export default function RestaurantInterface({ navigation }) {
   const [password, setPassword] = useState("");
   const [userAuthed, setUserAuthed] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-
-  /*         onPress={() => {
-            navigation.navigate("Restaurant Login", {});
-          }} */
 
   useFocusEffect(
     React.useCallback(() => {
@@ -95,7 +91,7 @@ export default function RestaurantInterface({ navigation }) {
                   setModalVisible(!modalVisible);
                 }}
               >
-                <Ionicons name="exit-outline" size={24} color="black" />
+                <Icon name="exit-outline" type="ionicon" size={24} color="rgb(98,0,238)" />
               </TouchableOpacity>
               <TextInput
                 mode="outlined"
@@ -124,9 +120,8 @@ export default function RestaurantInterface({ navigation }) {
                   },
                 }}
               />
-
-              <TouchableOpacity onPress={submitLogin}>
-                <Text style={styles.submit}>Login</Text>
+              <TouchableOpacity style={{ marginTop: "7.5%" }} onPress={submitLogin}>
+                <Text style={styles.button}>Login</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -176,15 +171,15 @@ const styles = StyleSheet.create({
     marginBottom: "5%",
   },
   button: {
-    fontFamily: "Aurella",
     color: "white",
-    borderWidth: 2,
-    borderColor: "white",
-    padding: 15,
-    paddingHorizontal: 30,
-    paddingBottom: 10,
-    fontSize: RFValue(50),
+    borderRadius: 4,
+    backgroundColor: "rgb(98,0,238)",
+    padding: 10,
+    width: 100,
+    fontSize: RFValue(20),
     fontWeight: "900",
+    textAlign: "center",
+    textAlignVertical: "center",
   },
   submit: {
     fontFamily: "Aurella",
