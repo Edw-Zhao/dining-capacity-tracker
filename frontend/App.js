@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, Button, SafeAreaView, TouchableOpacity, ImageBackground } from "react-native";
+import { StyleSheet, Text, View, Button, SafeAreaView, TouchableOpacity, ImageBackground, Image } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import CustomerData from "./screens/CustomerData(UnderConstruction)";
 import CustomerRestaurantScreen from "./screens/CustomerRestaurantScreen(UnderConstruction)";
@@ -19,7 +19,7 @@ const HomeScreen = ({ navigation }) => {
   return (
     <ImageBackground
       style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
-      source={require("./assets/background/Scottsdale-Ice-Cream-Fatty-Daddys-26.jpg")}
+      source={require("./assets/background/30vau2buydx1x42.jpg")}
     >
       <View style={styles.notice}>
         <Text style={styles.noticeText}>
@@ -66,6 +66,7 @@ export default function App() {
     CoalHand: require("./assets/fonts/CoalhandLukeTRIAL.ttf"),
     DKMid: require("./assets/fonts/DkMidnightChalkerRegular-lGWV.otf"),
     Candy: require("./assets/fonts/CANDY___.ttf"),
+    Kg: require("./assets/fonts/KgTen.ttf"),
   });
 
   if (!fontsLoaded) {
@@ -94,12 +95,22 @@ export default function App() {
               headerTintColor: "white",
             }}
           />
-          <Stack.Screen name="Customer Restaurant Screen" component={CustomerRestaurantScreen} />
+          <Stack.Screen
+            name="Customer Restaurant Screen"
+            component={CustomerRestaurantScreen}
+            options={{
+              headerStyle: {
+                backgroundColor: "black",
+              },
+              headerTintColor: "white",
+              headerTitle: "Restaurant Details",
+            }}
+          />
           <Stack.Screen
             name="Restaurant Edit"
             component={RestaurantEdit}
             options={{
-              title: "Restaurant Owner Interface",
+              title: "Restaurant Edit/Update",
               headerStyle: { backgroundColor: "black" },
               headerTintColor: "white",
             }}
@@ -150,6 +161,7 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     fontSize: RFValue(26),
     fontWeight: "900",
+    backgroundColor: "rgba(0,0,0,0.25)",
   },
   notice: {
     fontFamily: "KGBroken",

@@ -20,11 +20,13 @@ import axios from "axios";
 import MapView, { Marker } from "react-native-maps";
 import iconBank from "../components/iconbank";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
-import DropDownPicker from "react-native-dropdown-picker";
 import * as Progress from "react-native-progress";
 import { Icon } from "react-native-elements";
 
 export default function CustomerData({ navigation }) {
+  Text.defaultProps = Text.defaultProps || {};
+  Text.defaultProps.allowFontScaling = false;
+
   TextInput.defaultProps = TextInput.defaultProps || {};
   TextInput.defaultProps.allowFontScaling = false;
 
@@ -189,14 +191,25 @@ export default function CustomerData({ navigation }) {
                     ? "yellow"
                     : "red"
                 }
-                borderRadius={0}
+                borderRadius={1}
                 style={{ width: "100%" }}
               ></Progress.Bar>
-              <Text numberOfLines={1} style={{ color: "black" }}>
-                {String(item.facility)}
-              </Text>
+              <View style={{ alignItems: "center", justifyContent: "center" }}>
+                <Text
+                  numberOfLines={1}
+                  style={{
+                    color: "black",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {String(item.facility)}
+                </Text>
+                {/*<Text numberOfLines={1} style={{ color: "black", fontSize: RFValue(8.5) }}>
+                  {String(item.facility_address)}
+                </Text> */}
+              </View>
               <Image style={styles.restaurantPicture} source={{ uri: item.img_src }} />
-              <View style={[styles.rowFlex, { marginTop: 5 }]}>{showIcons(item)}</View>
+              <View style={{ flexDirection: "row", marginTop: 5, minHeight: 13 }}>{showIcons(item)}</View>
             </TouchableOpacity>
           );
         }}
@@ -261,7 +274,7 @@ export default function CustomerData({ navigation }) {
         >
           <View style={styles.filterModalBtn}>
             {townFilterInput !== "" ? (
-              <Text>{townFilterInput}</Text>
+              <Text style={{ color: "black" }}>{townFilterInput}</Text>
             ) : (
               <Text style={{ color: "grey" }}>Filter by city</Text>
             )}
@@ -320,36 +333,6 @@ export default function CustomerData({ navigation }) {
             </View>
           </View>
         </Modal>
-
-        {/*<View style={{ width: "30%" }}>
-          <DropDownPicker
-            placeholder="Filter by city"
-            style={{ width: "100%" }}
-            containerStyle={{ height: 30 }}
-            items={[
-              { label: "Bedford", value: "Bedford" },
-              { label: "Halifax", value: "Halifax" },
-            ]}
-            itemStyle={{
-              justifyContent: "flex-start",
-            }}
-            dropDownStyle={{ backgroundColor: "#fafafa" }}
-            onChangeItem={(option) => setTownFilterInput(option.label)}
-          />
-        </View>
-        <View style={{ width: "30%" }}>
-          <DropDownPicker
-            placeholder="Filter by tag"
-            style={{ width: "100%" }}
-            containerStyle={{ height: 30 }}
-            items={localArrList}
-            itemStyle={{
-              justifyContent: "flex-start",
-            }}
-            dropDownStyle={{ backgroundColor: "#fafafa" }}
-            onChangeItem={(option) => setFilterIcon(option.key)}
-          />
-        </View>*/}
       </View>
       <ImageBackground
         style={{ height: "100%", width: "100%" }}
@@ -441,8 +424,8 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     marginHorizontal: 22,
     padding: 5,
-    alignItems: "center",
     backgroundColor: "white",
+    alignItems: "center",
   },
   desc: {
     fontSize: RFValue(11),
@@ -452,7 +435,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1.3,
   },
   icon: {
-    marginHorizontal: 2,
+    marginHorizontal: 1,
   },
   rowFlex: {
     alignSelf: "center",

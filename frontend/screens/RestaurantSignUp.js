@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, Button, Alert, TouchableOpacity, ImageBackground, ScrollView } from "react-native";
+import { StyleSheet, Text, View, Button, Alert, TouchableOpacity, ImageBackground, Modal } from "react-native";
 import baseURL from "../assets/common/baseURL";
 import axios from "axios";
 import { TextInput } from "react-native-paper";
@@ -26,6 +26,7 @@ export default function RestaurantInterface({ navigation }) {
   const [res, setRes] = useState({});
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
 
   const onSubmit = () => {
     if (valKey !== "") {
@@ -55,13 +56,21 @@ export default function RestaurantInterface({ navigation }) {
         facilityId: res.data._id,
       })
       .then((res) => {
-        Alert.alert("Successful Registration!", "Please login for first-time set-up");
-        navigation.navigate("Restaurant Login", {});
+        Alert.alert("Successful Registration!", "Please login for first-time setup");
       })
       .catch((err, res) => {
         Alert.alert("Error");
         console.log(err);
       });
+  };
+
+  const submitLogin = async () => {
+    if (username === "" || password === "") {
+      Alert.alert("Incorrect Login", "Username and/or Password cannot be left blank.");
+    } else {
+      login();
+      setModalVisible(false);
+    }
   };
 
   return (
@@ -114,7 +123,6 @@ export default function RestaurantInterface({ navigation }) {
           </View>
         )}
       </View>
-
       <StatusBar style="light" />
     </ImageBackground>
   );

@@ -4,7 +4,6 @@ import {
   StyleSheet,
   Text,
   View,
-  Button,
   Alert,
   Image,
   TouchableOpacity,
@@ -17,11 +16,10 @@ import axios from "axios";
 import jwt_decode from "jwt-decode";
 import { TextInput } from "react-native-paper";
 import * as Location from "expo-location";
-import CollapsibleView from "@eliav2/react-native-collapsible-view";
-import MapView, { Marker } from "react-native-maps";
 import iconBank from "../components/iconbank";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
-import { Icon } from "react-native-elements";
+import { Icon, Button } from "react-native-elements";
+import * as Progress from "react-native-progress";
 
 export default function RestaurantEdit({ route, navigation }) {
   React.useLayoutEffect(() => {
@@ -45,6 +43,7 @@ export default function RestaurantEdit({ route, navigation }) {
   const [reqCoord, setReqCoord] = useState("");
   const [reqMsg, setReqMsg] = useState("");
   const [activeIconIndex, setActiveIconIndex] = useState([]);
+  const [permission, setPermission] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,20 +58,30 @@ export default function RestaurantEdit({ route, navigation }) {
           setActiveIconIndex(res.data.icon_arr);
           setReqMsg(res.data.msg);
         } else {
-          setReqMaxCapacity(0);
+          setReqMaxCapacity(1);
           setReqCurrentCapacity(0);
           setReqImage(
-            "https://images.everydayhealth.com/images/diet-nutrition/what-is-a-plant-based-diet-beginners-guide-food-list-benefits-722x406.jpg?sfvrsn=3d8f397_0"
+            "https://media.istockphoto.com/vectors/spoon-fork-and-knife-illustration-set-vector-id1214861636?b=1&k=6&m=1214861636&s=612x612&w=0&h=qGrshVBL1XQDDQnirOKWcJeksyMnAGu6dc-VugCzNXM="
           );
         }
         setDataLoaded(true);
       });
     };
     fetchData();
+    (async () => {
+      let { status } = await Location.requestPermissionsAsync();
+      if (status === "granted") {
+        setPermission(true);
+      }
+      if (status !== "granted") {
+        Alert.alert("Permission to access location was denied");
+        return;
+      }
+    })();
   }, []);
 
   useEffect(() => {
-    if (dataLoaded && res.registered === false) {
+    if (dataLoaded && res.registered === false && permission === true) {
       console.log("activated");
       const getcoord = async () => {
         let coord = await Location.geocodeAsync(res.facility_address + " " + res.facility_town);
@@ -88,7 +97,6 @@ export default function RestaurantEdit({ route, navigation }) {
   };
 
   const decreaseCounter = () => {
-    console.log(activeIconIndex);
     if (reqCurrentCapacity > 0) {
       setReqCurrentCapacity(reqCurrentCapacity - 1);
     }
@@ -121,72 +129,23 @@ export default function RestaurantEdit({ route, navigation }) {
 
   // Preview Component *************************
 
-  const iconPreview = () => {
+  const showIcons = (entry) => {
     return activeIconIndex.map((key) => {
-      <Icon
-        key={key}
-        name={iconBank[key].name}
-        style={styles.icon}
-        type={iconBank[key].family}
-        size={RFValue(22)}
-        color="black"
-      />;
+      return (
+        <Icon
+          key={key}
+          name={iconBank[key].name}
+          style={styles.icon}
+          type={iconBank[key].family}
+          size={RFValue(12)}
+          color="black"
+        />
+      );
     });
   };
 
-  const previewRow = () => {
-    const capaFrac = () => {
-      return (
-        <Text style={styles.rowText}>
-          {String(Math.round((reqCurrentCapacity / reqMaxCapacity) * 1000) / 10) + "% Full"}
-        </Text>
-      );
-    };
-
-    return (
-      <CollapsibleView
-        style={styles.rowEntry}
-        title={
-          <View style={styles.rowTitle}>
-            <Image source={{ uri: reqImage }} style={styles.tinyLogo} />
-            <View style={{ textAlign: "center" }}>
-              <Text style={styles.rowText}>{String(res.facility)}</Text>
-              <View style={[styles.rowFlex, { justifyContent: "space-around" }]}>{iconPreview()}</View>
-            </View>
-            <View>{capaFrac()}</View>
-          </View>
-        }
-      >
-        <View style={styles.rowEntryExtra}>
-          <View style={{ flexDirection: "row" }}>
-            <View>
-              <Text style={{ marginBottom: 20, marginTop: 20, fontSize: 17 }}> {reqMsg} </Text>
-              <Text>Type: {res.permit_type}</Text>
-              <Text>City: {res.facility_town}</Text>
-              <Text>Address: {res.facility_address}</Text>
-              <Text>Max Capacity: {reqMaxCapacity}</Text>
-              <Text>Current Capacity: {reqCurrentCapacity}</Text>
-            </View>
-            <TouchableHighlight style={{ alignSelf: "flex-end" }}>
-              <MapView
-                initialRegion={{
-                  latitude: reqCoord.latitude,
-                  longitude: reqCoord.longitude,
-                  latitudeDelta: 0.01,
-                  longitudeDelta: 0.01,
-                }}
-                style={styles.map}
-              >
-                <Marker
-                  title={res.facility}
-                  coordinate={{ latitude: reqCoord.latitude, longitude: reqCoord.longitude }}
-                />
-              </MapView>
-            </TouchableHighlight>
-          </View>
-        </View>
-      </CollapsibleView>
-    );
+  const capacityPercent = () => {
+    return reqCurrentCapacity / reqMaxCapacity;
   };
 
   // Preview Component *************************
@@ -230,60 +189,159 @@ export default function RestaurantEdit({ route, navigation }) {
 
   // Icon Component ****************************
 
-  const onChangeCapacity = (number) => setReqCurrentCapacity(number);
+  const onChangeCapacity = (number) => setReqCurrentCapacity(Number(number));
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {dataLoaded && (
-        <View style={styles.inputWrapper}>
-          <TextInput mode="outlined" style={styles.input} label="Facility" value={res.facility} />
-          <TextInput mode="outlined" style={styles.input} label="Address" value={res.facility_address} />
-          <View style={styles.capacityInput}>
-            <TextInput
-              mode="outlined"
-              style={[styles.inputNumber, { alignSelf: "center" }]}
-              label="Max Capacity"
-              value={String(reqMaxCapacity)}
-              onChangeText={(number) => setReqMaxCapacity(number)}
-            />
-            <View style={styles.rowFlex}>
-              <TextInput
-                mode="outlined"
-                style={styles.inputNumber}
-                label="Current Capacity"
-                value={String(reqCurrentCapacity)}
-                onChangeText={(number) => onChangeCapacity(number)}
-              />
-              <TouchableHighlight onPressIn={increaseCounter} underlayColor="#DDDDDD">
-                <Icon type="antdesign" name="pluscircleo" size={45} color="green" />
-              </TouchableHighlight>
-              <TouchableHighlight onPressIn={decreaseCounter} underlayColor="#DDDDDD">
-                <Icon type="antdesign" name="minuscircleo" size={45} color="red" />
-              </TouchableHighlight>
+      <ImageBackground
+        style={{ height: "100%", width: "100%" }}
+        source={require("../assets/background/foodtilebackground.jpg")}
+        blurRadius={0}
+      >
+        {dataLoaded && (
+          <View>
+            <View style={styles.inputWrapper}>
+              <Text style={styles.sectionHeader}>Account / Restaurant Details</Text>
+              <View style={[styles.rowFlex, { marginTop: 5 }]}>
+                <Text style={styles.accountDetailsType} numberOfLines={1}>
+                  Facility:
+                </Text>
+                <View>
+                  <Text style={[styles.accountDetails, { fontWeight: "bold" }]} numberOfLines={1}>
+                    {res.facility}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.rowFlex}>
+                <Text style={styles.accountDetailsType} numberOfLines={1}>
+                  Permit Type:
+                </Text>
+                <Text style={[styles.accountDetails, { fontWeight: "bold" }]} numberOfLines={1}>
+                  {res.permit_type}
+                </Text>
+              </View>
+              <View style={styles.rowFlex}>
+                <Text style={styles.accountDetailsType} numberOfLines={1}>
+                  Permit Status:
+                </Text>
+                <Text style={[styles.accountDetails, { fontWeight: "bold" }]} numberOfLines={1}>
+                  {res.permit_status}
+                </Text>
+              </View>
+              <View style={styles.rowFlex}>
+                <Text style={styles.accountDetailsType} numberOfLines={1}>
+                  Facility Town:
+                </Text>
+                <Text style={[styles.accountDetails, { fontWeight: "bold" }]} numberOfLines={1}>
+                  {res.facility_town}
+                </Text>
+              </View>
+              <View style={styles.rowFlex}>
+                <Text style={styles.accountDetailsType} numberOfLines={1}>
+                  Facility Address:
+                </Text>
+                <Text style={[styles.accountDetails, { fontWeight: "bold" }]} numberOfLines={1}>
+                  {res.facility_address}
+                </Text>
+              </View>
             </View>
-            <TextInput
-              mode="outlined"
-              style={styles.input}
-              label="Message"
-              value={reqMsg}
-              onChangeText={(text) => setReqMsg(text)}
-            />
-            <TextInput
-              mode="outlined"
-              style={styles.input}
-              label="Img URL"
-              value={reqImage}
-              onChangeText={(text) => setReqImage(text)}
-            />
+            <View style={styles.inputWrapper}>
+              <Text style={styles.sectionHeader}>Update Details</Text>
+              <View style={styles.capacityInput}>
+                <TextInput
+                  mode="outlined"
+                  style={[styles.inputNumber, { alignSelf: "center" }]}
+                  label="Max Capacity"
+                  value={String(reqMaxCapacity)}
+                  onChangeText={(number) => {
+                    if (number > 0) {
+                      setReqMaxCapacity(number);
+                    }
+                  }}
+                />
+                <View style={[styles.rowFlex]}>
+                  <TextInput
+                    mode="outlined"
+                    style={[styles.inputNumber, { width: "64%" }]}
+                    label="Current Capacity"
+                    value={String(reqCurrentCapacity)}
+                    onChangeText={(number) => onChangeCapacity(number)}
+                    underlineColor="black"
+                  />
+
+                  <TouchableHighlight
+                    onPressIn={increaseCounter}
+                    underlayColor="#DDDDDD"
+                    style={{ marginBottom: 4, marginLeft: 4 }}
+                  >
+                    <Icon type="antdesign" name="plussquare" size={45} color="green" />
+                  </TouchableHighlight>
+                  <TouchableHighlight onPressIn={decreaseCounter} underlayColor="#DDDDDD" style={{ marginBottom: 4 }}>
+                    <Icon type="antdesign" name="minussquare" size={45} color="red" />
+                  </TouchableHighlight>
+                </View>
+                <TextInput
+                  mode="outlined"
+                  style={styles.input}
+                  label="Message"
+                  value={reqMsg}
+                  onChangeText={(text) => setReqMsg(text)}
+                />
+                <TextInput
+                  mode="outlined"
+                  style={[styles.input, { marginBottom: 20 }]}
+                  label="Img URL"
+                  value={reqImage}
+                  onChangeText={(text) => setReqImage(text)}
+                />
+              </View>
+              {dataLoaded && <View style={styles.iconBoard}>{iconSelect()}</View>}
+            </View>
           </View>
-        </View>
-      )}
-      {dataLoaded && <View style={styles.iconBoard}>{iconSelect()}</View>}
-
-      <Text style={{ fontSize: 20, textAlign: "center" }}>Preview:</Text>
-      {dataLoaded && coordLoaded && previewRow()}
-      <Button style={{ marginTop: 20 }} title="Update" onPress={update} />
-
+        )}
+        {dataLoaded && coordLoaded && (
+          <View style={[styles.inputWrapper, { marginBottom: 20 }]}>
+            <Text style={styles.sectionHeader}>Preview:</Text>
+            <Text style={{ marginTop: 5 }}>Press to see your restaurant page</Text>
+            <TouchableOpacity
+              style={[styles.itemEntry]}
+              onPress={() => navigation.navigate("Customer Restaurant Screen", { restaurant: res })}
+            >
+              <Progress.Bar
+                progress={capacityPercent(res)}
+                backgroundColor="white"
+                borderWidth={1.5}
+                borderColor="lightgrey"
+                color={
+                  capacityPercent(res) >= 0 && capacityPercent(res) < 0.6
+                    ? "rgb(124,252,0)"
+                    : capacityPercent(res) >= 0.6 && capacityPercent(res) < 0.8
+                    ? "yellow"
+                    : "red"
+                }
+                borderRadius={1}
+                style={{ width: "100%" }}
+              ></Progress.Bar>
+              <View style={{}}>
+                <Text
+                  numberOfLines={1}
+                  style={{
+                    color: "black",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {String(res.facility)}
+                </Text>
+              </View>
+              <Image style={styles.restaurantPicture} source={{ uri: reqImage }} />
+              <View style={{ flexDirection: "row", marginTop: 5, minHeight: 13 }}>{showIcons()}</View>
+            </TouchableOpacity>
+          </View>
+        )}
+        <TouchableOpacity style={{ alignSelf: "center", marginBottom: 20 }} onPress={update}>
+          <Text style={styles.button}>Update</Text>
+        </TouchableOpacity>
+      </ImageBackground>
       <StatusBar style="light" />
     </ScrollView>
   );
@@ -295,84 +353,125 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
   },
-  inputWrapper: { width: "100%", marginTop: "5%" },
-  capacityInput: { marginTop: 20, marginBottom: 20 },
+  inputWrapper: {
+    width: "80%",
+    marginTop: "5%",
+    backgroundColor: "white",
+    opacity: 0.9,
+    alignSelf: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderRadius: 4,
+    borderColor: "rgb(98,0,238)",
+    paddingBottom: 10,
+  },
+  sectionHeader: {
+    height: 30,
+    width: "80%",
+    borderBottomWidth: 1,
+    borderColor: "rgb(98,0,238)",
+    fontWeight: "bold",
+    padding: 2,
+    fontSize: RFValue(18),
+    color: "rgb(98,0,238)",
+    textAlign: "center",
+    textAlignVertical: "center",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  accountDetailsType: {
+    height: 25,
+    borderColor: "lightgrey",
+    padding: 2,
+    color: "black",
+    textAlignVertical: "center",
+    fontSize: RFValue(12),
+    width: 110,
+  },
+  accountDetails: {
+    height: 25,
+    borderColor: "lightgrey",
+    padding: 2,
+    color: "black",
+    textAlignVertical: "center",
+    fontSize: RFValue(12),
+    width: 150,
+  },
+  capacityInput: {
+    marginTop: 20,
+    width: "80%",
+  },
   input: {
-    height: 50,
-    width: 300,
+    height: 40,
+    width: "100%",
     fontSize: 15,
     marginBottom: 10,
     alignSelf: "center",
   },
   inputNumber: {
-    height: 50,
-    width: 200,
+    height: 40,
+    width: "100%",
     fontSize: 15,
-    marginBottom: 10,
     textAlign: "center",
     fontSize: 25,
+    alignSelf: "center",
+    color: "black",
+    marginBottom: 10,
+    textAlignVertical: "center",
   },
   iconBoard: {
     flexDirection: "row",
     flexWrap: "wrap",
     width: "80%",
-    aspectRatio: 1,
     borderWidth: 1,
+    borderColor: "rgb(98,0,238)",
     marginBottom: 20,
     justifyContent: "center",
+    alignSelf: "center",
+    backgroundColor: "white",
   },
   selectIcon: {
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: "white",
     margin: 2,
   },
   selectedIcon: {
-    borderWidth: 1,
+    borderWidth: 1.5,
+    borderColor: "rgb(98,0,238)",
     margin: 2,
   },
   rowFlex: {
-    alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
   },
-  rowEntry: {
-    width: "98%",
-    alignItems: "flex-start",
-    marginBottom: 40,
+  itemEntry: {
+    borderRadius: 5,
+    width: 150,
+    marginVertical: 10,
+    marginHorizontal: 22,
+    padding: 5,
+    backgroundColor: "white",
+    alignItems: "center",
     borderWidth: 1,
+    borderColor: "grey",
   },
-  rowTitle: {
-    width: "96%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  rowText: {
-    fontSize: 16,
-    textAlign: "center",
+  restaurantPicture: {
+    width: "100%",
+    aspectRatio: 1.3,
   },
   icon: {
     marginHorizontal: 2,
   },
-  rowEntryExtra: {
-    marginTop: 5,
-    height: 200,
-    width: "100%",
-    alignItems: "center",
-    borderWidth: 1,
-  },
-
-  tinyLogo: {
-    width: 50,
-    height: 50,
-    marginLeft: 5,
-    marginRight: 10,
-  },
-
-  map: {
-    width: 200,
-    height: 200,
-    zIndex: 10000,
-    alignSelf: "center",
+  button: {
+    color: "white",
+    borderRadius: 4,
+    backgroundColor: "rgb(98,0,238)",
+    padding: 10,
+    width: 100,
+    fontSize: RFValue(20),
+    fontWeight: "900",
+    textAlign: "center",
+    textAlignVertical: "center",
   },
 });
