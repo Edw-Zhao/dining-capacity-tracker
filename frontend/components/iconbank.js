@@ -31,7 +31,7 @@ const iconBank = [
   { name: "coffee", family: "font-awesome-5", feature: "Coffee" },
   { name: "bottle-soda-classic", family: "material-community", feature: "Sodas" },
   { name: "seedling", family: "font-awesome-5", feature: "Hambugers" },
-  { name: "wheelchair", family: "font-awesome-5", feature: "Hambugers" },
+  { name: "wheelchair", family: "font-awesome-5", feature: "Accessibility-friendly " },
   { name: "volume-low", family: "ionicon", feature: "Quiet" },
   { name: "glass-cheers", family: "font-awesome-5", feature: "Bar" },
   { name: "grin-squint-tears", family: "font-awesome-5", feature: "Social" },

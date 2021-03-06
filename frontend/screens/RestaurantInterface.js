@@ -136,9 +136,12 @@ export default function RestaurantInterface({ navigation }) {
           {!modalVisible && <Text style={styles.button}>Signup</Text>}
         </TouchableOpacity>
       </View>
-      <Text style={styles.note}>
-        To register your restaurant, email example@ns.gov with proof of restaurant ownership for a validation key.
-      </Text>
+      {!modalVisible && (
+        <Text style={styles.note}>
+          To register your restaurant, email example@ns.gov with proof of restaurant ownership for a validation key.
+        </Text>
+      )}
+
       <StatusBar style="light" />
     </ImageBackground>
   );
@@ -198,7 +201,7 @@ const styles = StyleSheet.create({
   note: {
     marginTop: 75,
     width: "70%",
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
     padding: 10,
     borderWidth: 2,
     borderRadius: 5,

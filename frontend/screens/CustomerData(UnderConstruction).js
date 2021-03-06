@@ -69,9 +69,9 @@ export default function CustomerData({ navigation }) {
       let inputregex = rawFilterInput.split(" ");
 
       res.forEach((entry) => {
-        let entryregex = entry.facility.split(" ");
+        let entryregex = entry.facility.toUpperCase();
+        entryregex = entryregex.split(" ");
         let alreadypushed = false;
-
         if (
           inputregex[0] !== "" &&
           entry.facility_town === townFilterInput.toUpperCase() &&
@@ -94,7 +94,12 @@ export default function CustomerData({ navigation }) {
               alreadypushed = correctCond(entry, alreadypushed, localfilteredList);
             }
           });
-        } else if (inputregex[0] !== "" && entry.icon_arr.includes(filterIcon) && !alreadypushed) {
+        } else if (
+          inputregex[0] !== "" &&
+          entry.facility_town !== townFilterInput.toUpperCase() &&
+          entry.icon_arr.includes(filterIcon) &&
+          !alreadypushed
+        ) {
           inputregex.forEach((inputword) => {
             if (entryregex.includes(inputword.toUpperCase()) && !alreadypushed) {
               alreadypushed = correctCond(entry, alreadypushed, localfilteredList);
