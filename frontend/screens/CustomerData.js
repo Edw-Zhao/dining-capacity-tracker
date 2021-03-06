@@ -96,10 +96,11 @@ export default function CustomerData({ navigation }) {
           });
         } else if (
           inputregex[0] !== "" &&
-          entry.facility_town !== townFilterInput.toUpperCase() &&
+          townFilterInput === "" &&
           entry.icon_arr.includes(filterIcon) &&
           !alreadypushed
         ) {
+          console.log(entry.facility_town);
           inputregex.forEach((inputword) => {
             if (entryregex.includes(inputword.toUpperCase()) && !alreadypushed) {
               alreadypushed = correctCond(entry, alreadypushed, localfilteredList);
