@@ -305,7 +305,17 @@ export default function RestaurantEdit({ route, navigation }) {
             <Text style={{ marginTop: 5 }}>Press to see your restaurant page</Text>
             <TouchableOpacity
               style={[styles.itemEntry]}
-              onPress={() => navigation.navigate("Customer Restaurant Screen", { restaurant: res })}
+              onPress={() =>
+                navigation.navigate("Preview Restaurant Screen", {
+                  restaurant: res,
+                  current_capacity: reqCurrentCapacity,
+                  max_capacity: reqMaxCapacity,
+                  coordinates: reqCoord,
+                  img_src: reqImage,
+                  icon_arr: activeIconIndex,
+                  msg: reqMsg,
+                })
+              }
             >
               <Progress.Bar
                 progress={capacityPercent(res)}

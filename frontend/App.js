@@ -4,10 +4,10 @@ import { StyleSheet, Text, View, Button, SafeAreaView, TouchableOpacity, ImageBa
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import CustomerData from "./screens/CustomerData(UnderConstruction)";
 import CustomerRestaurantScreen from "./screens/CustomerRestaurantScreen(UnderConstruction)";
+import PreviewRestaurantScreen from "./screens/PreviewRestaurantScreen";
 import "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator, HeaderBackButton } from "@react-navigation/stack";
-import RestaurantLogin from "./screens/RestaurantLogin";
 import RestaurantEdit from "./screens/RestaurantEdit";
 import RestaurantInterface from "./screens/RestaurantInterface";
 import RestaurantSignUp from "./screens/RestaurantSignUp";
@@ -107,6 +107,17 @@ export default function App() {
             }}
           />
           <Stack.Screen
+            name="Preview Restaurant Screen"
+            component={PreviewRestaurantScreen}
+            options={{
+              headerStyle: {
+                backgroundColor: "black",
+              },
+              headerTintColor: "white",
+              headerTitle: "Restaurant Details",
+            }}
+          />
+          <Stack.Screen
             name="Restaurant Edit"
             component={RestaurantEdit}
             options={{
@@ -120,15 +131,6 @@ export default function App() {
             component={RestaurantInterface}
             options={{
               title: "Restaurant Owner Interface",
-              headerStyle: { backgroundColor: "black" },
-              headerTintColor: "white",
-            }}
-          />
-          <Stack.Screen
-            name="Restaurant Login"
-            component={RestaurantLogin}
-            options={{
-              title: "Login",
               headerStyle: { backgroundColor: "black" },
               headerTintColor: "white",
             }}

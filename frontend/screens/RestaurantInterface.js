@@ -71,7 +71,7 @@ export default function RestaurantInterface({ navigation }) {
       style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
       source={require("../assets/background/canteen-vectors.jpg")}
     >
-      <View style={{ marginTop: "-30%", marginBottom: "5%" }}>
+      <View style={{ marginBottom: "5%" }}>
         {!modalVisible && (
           <TouchableOpacity
             style={styles.portalButton}
@@ -136,6 +136,9 @@ export default function RestaurantInterface({ navigation }) {
           {!modalVisible && <Text style={styles.button}>Signup</Text>}
         </TouchableOpacity>
       </View>
+      <Text style={styles.note}>
+        To register your restaurant, email example@ns.gov with proof of restaurant ownership for a validation key.
+      </Text>
       <StatusBar style="light" />
     </ImageBackground>
   );
@@ -174,9 +177,10 @@ const styles = StyleSheet.create({
     color: "white",
     borderRadius: 4,
     backgroundColor: "rgb(98,0,238)",
-    padding: 10,
-    width: 100,
-    fontSize: RFValue(20),
+    padding: 5,
+    paddingBottom: 10,
+    width: 125,
+    fontSize: RFValue(28),
     fontWeight: "900",
     textAlign: "center",
     textAlignVertical: "center",
@@ -190,5 +194,16 @@ const styles = StyleSheet.create({
     padding: 5,
     paddingHorizontal: 30,
     fontSize: RFValue(50),
+  },
+  note: {
+    marginTop: 75,
+    width: "70%",
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    padding: 10,
+    borderWidth: 2,
+    borderRadius: 5,
+    borderColor: "rgb(98,0,238)",
+    fontSize: RFValue(20),
+    textAlign: "center",
   },
 });

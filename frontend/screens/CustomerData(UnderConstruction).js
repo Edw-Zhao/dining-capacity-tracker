@@ -19,6 +19,8 @@ import baseURL from "../assets/common/baseURL";
 import axios from "axios";
 import MapView, { Marker } from "react-native-maps";
 import iconBank from "../components/iconbank";
+//import cityList from "../components/fullCityList";
+import cityList from "../components/demoCityList";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import * as Progress from "react-native-progress";
 import { Icon } from "react-native-elements";
@@ -151,14 +153,6 @@ export default function CustomerData({ navigation }) {
     });
   };
 
-  const capaFrac = (entry) => {
-    return (
-      <Text style={styles.rowText}>
-        {String(Math.round((entry.current_capacity / entry.max_capacity) * 1000) / 10) + "%"}
-      </Text>
-    );
-  };
-
   const capacityPercent = (entry) => {
     return entry.current_capacity / entry.max_capacity;
   };
@@ -168,7 +162,7 @@ export default function CustomerData({ navigation }) {
   const displayData = (dataArr) => {
     return (
       <FlatList
-        contentContainerStyle={{ marginTop: "2%", alignItems: "center" }}
+        contentContainerStyle={{ marginTop: "2%", alignItems: "center", paddingBottom: 75 }}
         data={dataArr}
         horizontal={false}
         numColumns={2}
@@ -209,7 +203,7 @@ export default function CustomerData({ navigation }) {
                 </Text> */}
               </View>
               <Image style={styles.restaurantPicture} source={{ uri: item.img_src }} />
-              <View style={{ flexDirection: "row", marginTop: 5, minHeight: 13 }}>{showIcons(item)}</View>
+              <View style={{ flexDirection: "row", marginTop: 5 }}>{showIcons(item)}</View>
             </TouchableOpacity>
           );
         }}
@@ -232,16 +226,14 @@ export default function CustomerData({ navigation }) {
           }}
         >
           <Icon name={iconBank[ci].name} type={iconBank[ci].family} size={30} color="black" />
-          <Text style={{ fontSize: RFValue(22) }}> {icon.name}</Text>
+          <Text style={{ fontSize: RFValue(22) }}> {icon.feature}</Text>
         </TouchableOpacity>
       );
     });
   };
 
-  let cityArrList = ["Halifax", "Bedford", "Dartmouth", "Sackville", "Cole Harbour"];
-
   let filterCityRows = () => {
-    return cityArrList.map((city, i) => {
+    return cityList.map((city, i) => {
       return (
         <TouchableOpacity
           style={styles.filterRow}
@@ -265,6 +257,8 @@ export default function CustomerData({ navigation }) {
           mode="outlined"
           placeholder="Filter by name"
           onChangeText={(text) => {
+            if (text === "") {
+            }
             setRawFilterInput(text);
           }}
         />

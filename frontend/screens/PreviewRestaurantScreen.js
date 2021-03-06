@@ -43,9 +43,9 @@ function RestaurantScreen({ route, navigation }) {
           <View style={[styles.sectionContainer]}>
             <Text style={styles.title}>{restaurant.facility}</Text>
           </View>
-          {restaurant.msg && (
+          {route.params.msg && (
             <View style={[styles.sectionContainer]}>
-              <Text style={[styles.subTitle, { fontSize: RFValue(20) }]}>"{restaurant.msg}"</Text>
+              <Text style={[styles.subTitle, { fontSize: RFValue(20) }]}>"{route.params.msg}"</Text>
             </View>
           )}
           <View style={[styles.sectionContainer, { paddingBottom: 20 }]}>
@@ -59,20 +59,20 @@ function RestaurantScreen({ route, navigation }) {
             ]}
           >
             <View>
-              <Text style={styles.subTitle}>Current Capacity: {restaurant.current_capacity}</Text>
-              <Text style={styles.subTitle}>Max Capacity: {restaurant.max_capacity}</Text>
+              <Text style={styles.subTitle}>Current Capacity: {route.params.current_capacity}</Text>
+              <Text style={styles.subTitle}>Max Capacity: {route.params.max_capacity}</Text>
             </View>
             <AnimatedCircularProgress
               size={100}
               width={15}
-              fill={(restaurant.current_capacity / restaurant.max_capacity) * 100}
+              fill={(route.params.current_capacity / route.params.max_capacity) * 100}
               tintColor="white"
               backgroundColor="black"
               rotation={Number(0)}
             >
               {() => (
                 <Text style={{ color: "white", fontSize: RFValue(30) }}>
-                  {Math.round((restaurant.current_capacity / restaurant.max_capacity) * 100)}%
+                  {Math.round((route.params.current_capacity / route.params.max_capacity) * 100)}%
                 </Text>
               )}
             </AnimatedCircularProgress>
@@ -85,8 +85,8 @@ function RestaurantScreen({ route, navigation }) {
           <View style={styles.mapcontainer}>
             <MapView
               initialRegion={{
-                latitude: restaurant.location_latitude,
-                longitude: restaurant.location_longitude,
+                latitude: route.params.coordinates.latitude,
+                longitude: route.params.coordinates.longitude,
                 latitudeDelta: 0.01,
                 longitudeDelta: 0.01,
               }}
@@ -95,8 +95,8 @@ function RestaurantScreen({ route, navigation }) {
               <Marker
                 title={restaurant.facility}
                 coordinate={{
-                  latitude: restaurant.location_latitude,
-                  longitude: restaurant.location_longitude,
+                  latitude: route.params.coordinates.latitude,
+                  longitude: route.params.coordinates.longitude,
                 }}
               />
             </MapView>
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   mapcontainer: {
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 20,
+    marginBottom: 60,
   },
   map: {
     width: "90%",
