@@ -6,9 +6,7 @@ https://data.novascotia.ca/stories/s/h7r5-p6sw
 The Frontend will require a expo client (android simulator or with the Expo Go app on mobile devices. Please ensure that you change the base url located in assets/common/baseURL.js to your local IPv4 with matching backend port (default is 3000)
 
   <video controls="true" allowfullscreen="true">
-    <source src="path/to/video.mp4" type="video/mp4">
-    <source src="path/to/video.ogg" type="video/ogg">
-    <source src="path/to/video.webm" type="video/webm">
+    <source src="https://user-images.githubusercontent.com/72322579/110210406-f4e03e00-7e67-11eb-92f0-f6f50eab67ba.mp4" type="video/mp4">
   </video>
 
 https://user-images.githubusercontent.com/72322579/110210406-f4e03e00-7e67-11eb-92f0-f6f50eab67ba.mp4
